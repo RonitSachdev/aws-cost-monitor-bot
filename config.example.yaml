@@ -1,0 +1,21 @@
+# AWS Cost Monitoring Bot Configuration
+# Copy this file and customize for your project
+
+# Project identification
+project_name: "My AWS Project"
+
+# Cost monitoring settings
+cost_threshold: 500.0           # Alert when costs exceed this amount
+monitoring_period_days: 30      # Number of days to analyze
+currency: "USD"                 # Currency code
+
+# Notification settings
+notification_frequency: "daily"  # Options: daily, weekly, monthly
+slack_channel: "#aws-alerts"    # Slack channel for notifications
+
+# AWS settings (can override environment variables)
+# aws_region: "us-east-1"
+
+# Advanced settings
+# enable_anomaly_detection: true
+# anomaly_sensitivity: "medium"  # low, medium, high 

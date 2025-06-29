@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  aws-cost-monitor:
+    build: .
+    container_name: aws-cost-monitor
+    restart: unless-stopped
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_CHANNEL=${SLACK_CHANNEL:-#aws-alerts}
+      - COST_THRESHOLD=${COST_THRESHOLD:-100.0}
+      - MONITORING_PERIOD_DAYS=${MONITORING_PERIOD_DAYS:-7}
+      - CURRENCY=${CURRENCY:-USD}
+      - PROJECT_NAME=${PROJECT_NAME:-AWS Project}
+      - NOTIFICATION_FREQUENCY=${NOTIFICATION_FREQUENCY:-daily}
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "main.py", "--daemon"]
+    healthcheck:
+      test: ["CMD", "python", "main.py", "--test"]
+      interval: 1h
+      timeout: 30s
+      retries: 3
+      start_period: 60s 
