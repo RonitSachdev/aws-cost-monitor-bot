@@ -1,18 +1,35 @@
 # AWS Cost Monitoring Bot
-
-A comprehensive, reusable AWS cost monitoring solution that tracks your AWS spending and sends intelligent alerts to Slack. Perfect for keeping your AWS costs under control across multiple projects.
+A comprehensive, AWS cost monitoring solution that tracks your AWS spending with **granular service-specific controls**, **resource-level filtering**, and intelligent alerts to Slack. Perfect for keeping your AWS costs under control across multiple projects with **unprecedented flexibility**.
 
 ## Features
 
-- **Real-time Cost Monitoring**: Track AWS costs using AWS Cost Explorer API
-- **Intelligent Alerts**: Smart notifications based on thresholds and anomalies
-- **Slack Integration**: Rich, formatted notifications with cost breakdowns
-- **Multi-Project Support**: Easily reusable across different AWS projects
-- **Anomaly Detection**: Automatically detect unusual spending patterns
-- **Flexible Scheduling**: Daily, weekly, or monthly monitoring options
-- **Service Breakdown**: Detailed cost analysis by AWS service
-- **Trend Analysis**: Track cost trends over time
-- **Easy Configuration**: Environment variables or config files
+### **Service-Specific Controls**
+- **Enable/Disable Services**: Monitor only the services you care about
+- **Service-Specific Thresholds**: Set different cost limits for each AWS service
+- **Granular Filtering**: Exclude specific services from monitoring
+- **Resource ARN Filtering**: Monitor specific resources or exclude unwanted ones
+- **Tag-Based Filtering**: Filter costs by AWS resource tags
+
+### **Advanced Cost Analysis**
+- **Service-Level Breakdown**: Detailed cost analysis per AWS service
+- **Resource-Level Costs**: Track costs of individual resources (EC2, RDS, Lambda, etc.)
+- **Configurable Anomaly Detection**: Low, medium, or high sensitivity
+- **Cost Forecasting**: Predict future costs with configurable timeframes
+- ** Trend Analysis**: Advanced cost trend detection and reporting
+
+### **Intelligent Alerting System**
+- **Multi-Level Alerts**: Critical, Warning, Info, and Normal levels
+- **Service-Specific Alerts**: Individual alerts for each service
+- **Resource-Level Alerts**: Alerts for expensive individual resources
+- **Anomaly Alerts**: Automatic detection of unusual spending patterns
+- **Actionable Recommendations**: Service-specific optimization suggestions
+
+### **Enterprise Configuration**
+- **Flexible Scheduling**: Configurable check intervals (1-24 hours)
+- **Weekend Controls**: Enable/disable monitoring on weekends
+- **Timezone Support**: Configure monitoring for your timezone
+- **Debug Mode**:  logging and troubleshooting
+- **Multiple Deployment Options**: CLI, Docker, Cron, Systemd
 
 ## Quick Start
 
@@ -46,7 +63,11 @@ pip install -r requirements.txt
                    "ce:DescribeCostCategoryDefinition",
                    "ce:GetRightsizingRecommendation",
                    "ce:GetSavingsPlansUtilization",
-                   "ce:GetCostForecast"
+                   "ce:GetCostForecast",
+                   "ec2:DescribeInstances",
+                   "rds:DescribeDBInstances",
+                   "lambda:ListFunctions",
+                   "s3:ListBuckets"
                ],
                "Resource": "*"
            }
@@ -79,98 +100,157 @@ pip install -r requirements.txt
    /invite @YourBotName
    ```
 
-### 4. Configuration
+### 4.  Configuration
 
-Copy the example environment file and configure:
+Copy the  environment file and configure:
 
 ```bash
-cp .env.example .env
+cp env..example .env
 ```
 
-Edit `.env` with your credentials:
+Edit `.env` with your credentials and preferences:
 
 ```bash
-# AWS Configuration
+# Basic Configuration
 AWS_ACCESS_KEY_ID=your_actual_access_key
 AWS_SECRET_ACCESS_KEY=your_actual_secret_key
-AWS_DEFAULT_REGION=us-east-1
-
-# Slack Configuration
 SLACK_BOT_TOKEN=xoxb-your-actual-bot-token
 SLACK_CHANNEL=#aws-alerts
 
-# Cost Monitoring Settings
-COST_THRESHOLD=500.0
-MONITORING_PERIOD_DAYS=30
-CURRENCY=USD
+#  Service Controls
+ENABLED_SERVICES=all
+DISABLED_SERVICES=Amazon Glacier,AWS Data Transfer
+SERVICE_THRESHOLDS={"Amazon EC2": 500.0, "Amazon RDS": 200.0, "Amazon S3": 100.0}
 
-# Project Settings
-PROJECT_NAME=My Production Environment
-NOTIFICATION_FREQUENCY=daily
+# Resource Filtering
+RESOURCE_ARNS=
+EXCLUDED_ARNS=arn:aws:ec2:us-east-1:123456789012:instance/i-test123
+TAG_FILTERS={"Environment": "production", "Project": "myapp"}
+
+# Advanced Monitoring
+ENABLE_ANOMALY_DETECTION=true
+ANOMALY_SENSITIVITY=medium
+ENABLE_COST_FORECASTING=true
+FORECAST_DAYS=30
+
+# Alert Configuration
+ALERT_CRITICAL_PERCENT=100.0
+ALERT_WARNING_PERCENT=80.0
+ALERT_INFO_PERCENT=50.0
+ENABLE_DETAILED_BREAKDOWN=true
+MAX_SERVICES_IN_ALERT=10
+
+# Scheduling
+CHECK_INTERVAL_HOURS=6
+ENABLE_WEEKEND_MONITORING=true
+TIMEZONE=UTC
 ```
 
 ### 5. Test and Run
 
 ```bash
-# Test connections
+# Test  connections
 python main.py --test
 
-# Run a single check
+# Run  cost check
 python main.py --check-once
 
-# Send cost summary
+# Send  summary
 python main.py --summary
 
-# Start continuous monitoring
+# Start  monitoring
 python main.py --daemon
 ```
 
-## Usage Examples
+##  Usage Examples
 
 ### Basic Usage
 ```bash
 # Run once and exit
 python main.py
 
-# Test all connections
+# Test  connections
 python main.py --test
 
 # Run in background (daemon mode)
 python main.py --daemon
 ```
 
-### Advanced Configuration
+### Service-Specific Configuration
 
-#### Using Config Files
+#### Monitor Only Specific Services
+```bash
+# Monitor only compute and database services
+ENABLED_SERVICES="Amazon EC2,Amazon RDS,Amazon ECS" python main.py --daemon
 
-Create `config.yaml`:
+# Exclude expensive services
+DISABLED_SERVICES="Amazon SageMaker,Amazon EMR,Amazon Redshift" python main.py --daemon
+```
+
+#### Service-Specific Thresholds
+```bash
+# Set different thresholds for each service
+SERVICE_THRESHOLDS='{"Amazon EC2": 500.0, "Amazon RDS": 200.0, "Amazon S3": 50.0}' python main.py --daemon
+```
+
+### Resource-Level Filtering
+
+#### Monitor Specific Resources
+```bash
+# Monitor only specific EC2 instances
+RESOURCE_ARNS="arn:aws:ec2:us-east-1:123456789012:instance/i-prod1,arn:aws:ec2:us-east-1:123456789012:instance/i-prod2" python main.py --daemon
+
+# Exclude test resources
+EXCLUDED_ARNS="arn:aws:ec2:us-east-1:123456789012:instance/i-test*" python main.py --daemon
+```
+
+#### Tag-Based Filtering
+```bash
+# Monitor only production resources
+TAG_FILTERS='{"Environment": "production"}' python main.py --daemon
+
+# Monitor specific project resources
+TAG_FILTERS='{"Project": "myapp", "Environment": "prod"}' python main.py --daemon
+```
+
+### Advanced Configuration Files
+
+#### Using  YAML Config
+Create `production.yaml`:
 ```yaml
-project_name: "Production Web App"
+project_name: "Production Environment"
 cost_threshold: 1000.0
-monitoring_period_days: 7
-notification_frequency: "daily"
-slack_channel: "#production-alerts"
-currency: "USD"
+enabled_services: "Amazon EC2,Amazon RDS,Amazon S3,AWS Lambda"
+service_thresholds:
+  "Amazon EC2": 500.0
+  "Amazon RDS": 200.0
+  "Amazon S3": 100.0
+  "AWS Lambda": 50.0
+tag_filters:
+  Environment: "production"
+check_interval_hours: 2
+enable_anomaly_detection: true
+anomaly_sensitivity: "high"
 ```
 
 Run with config file:
 ```bash
-python main.py --config config.yaml --daemon
+python main.py --config production.yaml --daemon
 ```
 
-#### Multiple Projects
-
-For different projects, create separate config files:
-
+#### Multiple Environment Setup
 ```bash
-# E-commerce project
-python main.py --config configs/ecommerce.yaml --daemon
+# Production environment
+python main.py --config configs/production.yaml --daemon
 
-# Analytics project  
-python main.py --config configs/analytics.yaml --daemon
+# Staging environment  
+python main.py --config configs/staging.yaml --daemon
+
+# Development environment
+python main.py --config configs/development.yaml --daemon
 ```
 
-## Configuration Options
+## 🔧  Configuration Options
 
 ### Environment Variables
 
@@ -181,101 +261,188 @@ python main.py --config configs/analytics.yaml --daemon
 | `AWS_DEFAULT_REGION` | AWS Region | `us-east-1` | ❌ |
 | `SLACK_BOT_TOKEN` | Slack Bot Token | - | ✅ |
 | `SLACK_CHANNEL` | Slack Channel | `#alerts` | ❌ |
-| `COST_THRESHOLD` | Cost alert threshold | `100.0` | ❌ |
+| `COST_THRESHOLD` | Global cost alert threshold | `100.0` | ❌ |
 | `MONITORING_PERIOD_DAYS` | Days to analyze | `7` | ❌ |
 | `CURRENCY` | Currency code | `USD` | ❌ |
 | `PROJECT_NAME` | Project identifier | `AWS Project` | ❌ |
 | `NOTIFICATION_FREQUENCY` | Alert frequency | `daily` | ❌ |
 
-### Notification Frequencies
+### Service-Specific Controls
 
-- **`daily`**: Checks at 9 AM and 6 PM, plus 6-hourly threshold checks
-- **`weekly`**: Checks every Monday morning
-- **`monthly`**: Checks once per month
-- **Custom**: Use config files for custom scheduling
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLED_SERVICES` | Services to monitor | `all` |
+| `DISABLED_SERVICES` | Services to exclude | `` |
+| `SERVICE_THRESHOLDS` | Service-specific thresholds | `{}` |
 
-## 📊 Alert Types
+### Resource Filtering
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `RESOURCE_ARNS` | Specific ARNs to monitor | `` |
+| `EXCLUDED_ARNS` | ARNs to exclude | `` |
+| `TAG_FILTERS` | Tag-based filtering | `{}` |
+
+### Advanced Monitoring
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ENABLE_ANOMALY_DETECTION` | Enable anomaly detection | `true` |
+| `ANOMALY_SENSITIVITY` | Detection sensitivity | `medium` |
+| `ENABLE_COST_FORECASTING` | Enable cost forecasting | `true` |
+| `FORECAST_DAYS` | Days to forecast | `30` |
+
+### Alert Configuration
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `ALERT_CRITICAL_PERCENT` | Critical alert threshold | `100.0` |
+| `ALERT_WARNING_PERCENT` | Warning alert threshold | `80.0` |
+| `ALERT_INFO_PERCENT` | Info alert threshold | `50.0` |
+| `ENABLE_DETAILED_BREAKDOWN` | Enable detailed alerts | `true` |
+| `MAX_SERVICES_IN_ALERT` | Max services in alert | `10` |
+
+### Scheduling
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `CHECK_INTERVAL_HOURS` | Check interval | `6` |
+| `ENABLE_WEEKEND_MONITORING` | Weekend monitoring | `true` |
+| `TIMEZONE` | Timezone | `UTC` |
+
+##  Alert Types
 
 ### 🚨 Critical Alerts
 - Cost exceeds 100% of threshold
+- Service-specific threshold exceeded
 - Severe cost anomalies detected
+- Resource-level cost spikes
 
 ### ⚠️ Warning Alerts  
 - Cost exceeds 80% of threshold
+- Service approaching threshold
 - Moderate cost increases detected
+- Anomaly detection warnings
 
 ### ℹ️ Info Alerts
 - Regular cost summaries
-- Normal cost reports
+- Service-specific reports
+- Resource utilization updates
+- Cost forecasting insights
 
-## Example Slack Notifications
+### ✅ Normal Alerts
+- Costs within normal range
+- Positive cost trends
+- Optimization opportunities
 
-The bot sends rich, formatted Slack messages including:
+## 🎯  Slack Notifications
 
-- **Current vs. threshold costs**
-- **Top services by cost**
-- **Daily/weekly trends**
-- **Actionable recommendations**
-- **Anomaly alerts**
+The bot sends rich, actionable Slack messages including:
 
-## Scheduling Options
+- **Service-Specific Breakdowns**: Individual service costs and thresholds
+- **Resource-Level Details**: Top expensive resources with costs
+- **Anomaly Alerts**: Detected unusual spending patterns
+- **Cost Forecasting**: Predicted future costs and trends
+- **Service Recommendations**: Specific optimization suggestions per service
+- **Resource Utilization**: Current resource usage statistics
+- **Trend Analysis**: Cost trends with visual indicators
+
+##  Scheduling Options
+
+### Flexible Intervals
+```bash
+# Check every 2 hours
+CHECK_INTERVAL_HOURS=2 python main.py --daemon
+
+# Check every 12 hours
+CHECK_INTERVAL_HOURS=12 python main.py --daemon
+
+# Check every hour (high-frequency monitoring)
+CHECK_INTERVAL_HOURS=1 python main.py --daemon
+```
+
+### Weekend Controls
+```bash
+# Disable weekend monitoring
+ENABLE_WEEKEND_MONITORING=false python main.py --daemon
+
+# Enable weekend monitoring (default)
+ENABLE_WEEKEND_MONITORING=true python main.py --daemon
+```
 
 ### Cron Integration
 ```bash
-# Add to crontab for hourly checks
-0 * * * * /usr/bin/python3 /path/to/main.py --check-once
-
-# Daily summary at 8 AM
-0 8 * * * /usr/bin/python3 /path/to/main.py --summary
+# Add to crontab for custom scheduling
+0 */2 * * * /usr/bin/python3 /path/to/main.py --check-once  # Every 2 hours
+0 8 * * 1 /usr/bin/python3 /path/to/main.py --summary      # Weekly summary
+0 9 1 * * /usr/bin/python3 /path/to/main.py --summary      # Monthly summary
 ```
 
-### Docker Deployment
-```dockerfile
-FROM python:3.9-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-CMD ["python", "main.py", "--daemon"]
+## 🐳  Docker Deployment
+
+### Docker Compose with  Config
+```yaml
+version: '3.8'
+
+services:
+  aws-cost-monitor:
+    build: .
+    container_name: aws-cost-monitor
+    restart: unless-stopped
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION:-us-east-1}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_CHANNEL=${SLACK_CHANNEL:-#aws-alerts}
+      - COST_THRESHOLD=${COST_THRESHOLD:-100.0}
+      - ENABLED_SERVICES=${ENABLED_SERVICES:-all}
+      - DISABLED_SERVICES=${DISABLED_SERVICES:-}
+      - SERVICE_THRESHOLDS=${SERVICE_THRESHOLDS:-{}}
+      - ENABLE_ANOMALY_DETECTION=${ENABLE_ANOMALY_DETECTION:-true}
+      - ANOMALY_SENSITIVITY=${ANOMALY_SENSITIVITY:-medium}
+      - CHECK_INTERVAL_HOURS=${CHECK_INTERVAL_HOURS:-6}
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    command: ["python", "main.py", "--daemon"]
 ```
 
-### Systemd Service
-```ini
-[Unit]
-Description=AWS Cost Monitor
-After=network.target
+### Multi-Environment Docker Setup
+```bash
+# Production
+docker-compose -f docker-compose.prod.yml up -d
 
-[Service]
-Type=simple
-User=aws-monitor
-WorkingDirectory=/opt/aws-cost-monitor
-ExecStart=/usr/bin/python3 main.py --daemon
-Restart=always
+# Staging
+docker-compose -f docker-compose.staging.yml up -d
 
-[Install]
-WantedBy=multi-user.target
+# Development
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
-## Development
+##  Development
 
 ### Project Structure
 ```
 aws-cost-monitoring-bot/
-├── main.py                 # Entry point
-├── cost_monitor_bot.py     # Main bot logic
-├── aws_cost_monitor.py     # AWS Cost Explorer integration
-├── slack_notifier.py       # Slack messaging
-├── config.py              # Configuration management
-├── requirements.txt       # Dependencies
-├── .env.example          # Environment template
-└── README.md             # Documentation
+├── main.py                     # Entry point
+├── cost_monitor_bot.py         #  bot logic
+├── aws_cost_monitor.py         #  AWS integration
+├── slack_notifier.py           #  Slack messaging
+├── config.py                   #  configuration
+├── requirements.txt            # Dependencies
+├── env..example        #  environment template
+├── config..example.yaml #  YAML config
+├── README.md                   # Documentation
+└── SETUP_GUIDE.md             # Setup instructions
 ```
 
 ### Adding New Features
 
-1. **Custom Metrics**: Extend `AWSCostMonitor` class
-2. **New Alert Types**: Modify `SlackNotifier` class  
-3. **Additional Scheduling**: Update `CostMonitorBot.schedule_monitoring()`
+1. **Custom Service Monitoring**: Extend `Config.get_enabled_services_list()`
+2. **New Alert Types**: Modify `SlackNotifier.send_service_specific_alert()`
+3. **Additional Resource Types**: Extend `AWSCostMonitor.get_resource_utilization()`
+4. **Custom Scheduling**: Update `CostMonitorBot.schedule_monitoring()`
 
 ## Contributing
 
@@ -285,7 +452,7 @@ aws-cost-monitoring-bot/
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📝 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
@@ -293,23 +460,29 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ### Common Issues
 
-**AWS Permission Denied**
+**Service-Specific Configuration Errors**
 ```bash
-# Verify AWS credentials
-aws sts get-caller-identity
+# Verify service names
+python -c "from config import Config; c = Config(); print(c.get_enabled_services_list())"
 
-# Check Cost Explorer permissions
-aws ce get-cost-and-usage --time-period Start=2024-01-01,End=2024-01-02 --granularity DAILY --metrics BlendedCost
+# Test service filtering
+python -c "from config import Config; c = Config(); print(c.is_service_enabled('Amazon EC2'))"
 ```
 
-**Slack Bot Not Responding**
-- Verify bot token starts with `xoxb-`
-- Ensure bot is invited to the channel
-- Check bot permissions include `chat:write`
+**Resource Filtering Issues**
+```bash
+# Test ARN filtering
+python -c "from config import Config; c = Config(); print(c.should_monitor_resource('arn:aws:ec2:us-east-1:123456789012:instance/i-test123'))"
 
-**No Cost Data**
-- AWS Cost Explorer requires 24-48 hours for data availability
-- Ensure your AWS account has actual usage/costs
+# Test tag filtering
+python -c "from config import Config; c = Config(); print(c.get_cost_explorer_filters())"
+```
+
+** Debug Mode**
+```bash
+# Enable debug logging
+DEBUG_MODE=true LOG_LEVEL=DEBUG python main.py --test
+```
 
 ### Debug Mode
 

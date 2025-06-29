@@ -1,8 +1,8 @@
-# AWS Cost Monitoring Bot Configuration
+#  AWS Cost Monitoring Bot Configuration
 # Copy this file and customize for your project
 
 # Project identification
-project_name: "My AWS Project"
+project_name: "My  AWS Project"
 
 # Cost monitoring settings
 cost_threshold: 500.0           # Alert when costs exceed this amount
@@ -13,9 +13,43 @@ currency: "USD"                 # Currency code
 notification_frequency: "daily"  # Options: daily, weekly, monthly
 slack_channel: "#aws-alerts"    # Slack channel for notifications
 
-# AWS settings (can override environment variables)
-# aws_region: "us-east-1"
+# Service-specific controls
+enabled_services: "all"         # "all" or comma-separated list
+disabled_services: "Amazon Glacier, AWS Data Transfer"  # Services to exclude
+service_thresholds:             # Service-specific thresholds
+  "Amazon EC2": 200.0
+  "Amazon RDS": 100.0
+  "Amazon S3": 50.0
+  "AWS Lambda": 25.0
 
-# Advanced settings
-# enable_anomaly_detection: true
-# anomaly_sensitivity: "medium"  # low, medium, high 
+# Resource ARN filtering
+resource_arns: ""               # Specific ARNs to monitor (comma-separated)
+excluded_arns: "arn:aws:ec2:us-east-1:123456789012:instance/i-test123"  # ARNs to exclude
+tag_filters:                    # Tag-based filtering
+  Environment: "production"
+  Project: "myapp"
+
+# Advanced monitoring options
+enable_anomaly_detection: true
+anomaly_sensitivity: "medium"   # low, medium, high
+enable_cost_forecasting: true
+forecast_days: 30
+
+# Alert configuration
+alert_critical_percent: 100.0
+alert_warning_percent: 80.0
+alert_info_percent: 50.0
+enable_detailed_breakdown: true
+max_services_in_alert: 10
+
+# Scheduling configuration
+check_interval_hours: 6
+enable_weekend_monitoring: true
+timezone: "UTC"
+
+# Debug and logging
+debug_mode: false
+log_level: "INFO"
+
+# AWS settings (can override environment variables)
+# aws_region: "us-east-1" 
