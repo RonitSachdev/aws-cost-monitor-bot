@@ -1,8 +1,8 @@
-# AWS Cost Monitoring Bot 🤖💰
+# AWS Cost Monitoring Bot
 
 A comprehensive, reusable AWS cost monitoring solution that tracks your AWS spending and sends intelligent alerts to Slack. Perfect for keeping your AWS costs under control across multiple projects.
 
-## ✨ Features
+## Features
 
 - **Real-time Cost Monitoring**: Track AWS costs using AWS Cost Explorer API
 - **Intelligent Alerts**: Smart notifications based on thresholds and anomalies
@@ -14,7 +14,7 @@ A comprehensive, reusable AWS cost monitoring solution that tracks your AWS spen
 - **Trend Analysis**: Track cost trends over time
 - **Easy Configuration**: Environment variables or config files
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Installation
 
@@ -125,7 +125,7 @@ python main.py --summary
 python main.py --daemon
 ```
 
-## 📖 Usage Examples
+## Usage Examples
 
 ### Basic Usage
 ```bash
@@ -170,7 +170,7 @@ python main.py --config configs/ecommerce.yaml --daemon
 python main.py --config configs/analytics.yaml --daemon
 ```
 
-## 🔧 Configuration Options
+## Configuration Options
 
 ### Environment Variables
 
@@ -208,7 +208,7 @@ python main.py --config configs/analytics.yaml --daemon
 - Regular cost summaries
 - Normal cost reports
 
-## 🎯 Example Slack Notifications
+## Example Slack Notifications
 
 The bot sends rich, formatted Slack messages including:
 
@@ -218,7 +218,7 @@ The bot sends rich, formatted Slack messages including:
 - **Actionable recommendations**
 - **Anomaly alerts**
 
-## 🔄 Scheduling Options
+## Scheduling Options
 
 ### Cron Integration
 ```bash
@@ -256,7 +256,7 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-## 🛠️ Development
+## Development
 
 ### Project Structure
 ```
@@ -277,7 +277,7 @@ aws-cost-monitoring-bot/
 2. **New Alert Types**: Modify `SlackNotifier` class  
 3. **Additional Scheduling**: Update `CostMonitorBot.schedule_monitoring()`
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -285,11 +285,11 @@ aws-cost-monitoring-bot/
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -319,12 +319,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 ```
 
-## 📞 Support
+## Support
 
-- 📧 **Email**: [your-email@domain.com]
-- 🐛 **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
-- 📖 **Documentation**: [Project Wiki](https://github.com/your-repo/wiki)
-
+- **Email**: [ronitsachdev007@gmail.com]
 ---
-
-**Made with ❤️ for better AWS cost management** 
